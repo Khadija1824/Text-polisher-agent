@@ -4,6 +4,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from agent import TextPolisher
 
+# Load .env FIRST, before anything else
 load_dotenv()
 
 st.set_page_config(
@@ -12,16 +13,24 @@ st.set_page_config(
     layout="centered",
 )
 
+# ---- Read key from .env ONLY (never from UI) ----
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# ---------------- Sidebar ----------------
+# ---- Fail fast with a clear setup message ----
+if not API_KEY:
+    st.error(
+        "⚠️ **Setup error:** `GOOGLE_API_KEY` is not set.\n\n"
+        "Create a file named `.env` next to `app.py` with:\n\n"
+        "```\nGOOGLE_API_KEY=your_key_here\n```\n\n"
+        "Then restart the app: `streamlit run app.py`"
+    )
+    st.stop()
+
+
+# ---------------- Sidebar (no key input) ----------------
 with st.sidebar:
     st.title("✍️ Text Polisher")
-    st.caption("Any input -> clean, correct English.")
-
-    if not API_KEY:
-        API_KEY = st.text_input("Gemini API Key", type="password",
-                                help="Or set GOOGLE_API_KEY in .env")
+    st.caption("Any input → clean, correct English.")
 
     model = st.selectbox(
         "Model",
@@ -41,13 +50,9 @@ with st.sidebar:
 # ---------------- Header ----------------
 st.title("✍️ Universal Text Polisher")
 st.caption(
-    "Paste broken English, Hinglish, Roman Urdu, SMS-speak, or any messy text - "
+    "Paste broken English, Hinglish, Roman Urdu, SMS-speak, or any messy text — "
     "get clean, correct English back with the meaning preserved."
 )
-
-if not API_KEY:
-    st.warning("Please provide a Gemini API key in the sidebar or .env file.")
-    st.stop()
 
 
 # ---------------- Agent (cached) ----------------
