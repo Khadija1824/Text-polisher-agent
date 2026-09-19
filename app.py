@@ -6,6 +6,7 @@ from agent import TextPolisher
 
 # Load .env FIRST, before anything else
 load_dotenv()
+api_key = os.getenv("GOOGLE_API_KEY")
 
 st.set_page_config(
     page_title="Text Polisher Agent",
